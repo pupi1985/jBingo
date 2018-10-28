@@ -7,6 +7,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -35,6 +36,10 @@ public class PreferencesView {
     private Label pickedNumberColorColoredLabel;
     private Label unpickedNumberColorColoredLabel;
     private Label highlightColorColoredLabel;
+    private Label numberNamesFontLabel;
+    private Label numberNamesFontValuesLabel;
+    private Button showNumberNamesCheckbox;
+    private Button changeNumberNamesFontButton;
 
     private PreferencesController preferencesController;
     private Bingo bingo;
@@ -216,6 +221,37 @@ public class PreferencesView {
         highlightColorColoredLabel.setLayoutData("wmin 30pt"); //$NON-NLS-1$
         highlightColorColoredLabel.setBackground(new Color(display, bingo.getSettingsManager().getHighlightColor()));
 
+        showNumberNamesCheckbox = new Button(mainPanel, SWT.CHECK);
+        showNumberNamesCheckbox.setLayoutData("wrap"); //$NON-NLS-1$
+        showNumberNamesCheckbox.setText(Messages.getString("PreferencesView.NumberNames")); //$NON-NLS-1$
+        showNumberNamesCheckbox.setSelection(bingo.getSettingsManager().getShowNumberNames());
+        showNumberNamesCheckbox.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                boolean isSelected = ((Button) event.getSource()).getSelection();
+                numberNamesFontLabel.setEnabled(isSelected);
+                changeNumberNamesFontButton.setEnabled(isSelected);
+                numberNamesFontValuesLabel.setEnabled(isSelected);
+            }
+        });
+
+        numberNamesFontLabel = new Label(mainPanel, SWT.NONE);
+        numberNamesFontLabel.setLayoutData("gapleft 15pt"); //$NON-NLS-1$
+        numberNamesFontLabel.setText(Messages.getString("PreferencesView.NumberNamesFont")); //$NON-NLS-1$
+
+        changeNumberNamesFontButton = new Button(mainPanel, SWT.PUSH);
+        changeNumberNamesFontButton.setLayoutData("split 2"); //$NON-NLS-1$
+        changeNumberNamesFontButton.setText(Messages.getString("PreferencesView.ChangeFont")); //$NON-NLS-1$
+        changeNumberNamesFontButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                preferencesController.changeNumberNamesFontAction();
+            }
+        });
+
+        numberNamesFontValuesLabel = new Label(mainPanel, SWT.NONE);
+        numberNamesFontValuesLabel.setText(String.valueOf(bingo.getSettingsManager().getNumberNamesFontData()));
+
         // Start bottom panel
 
         Label mainPanelSeparator = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
@@ -256,6 +292,9 @@ public class PreferencesView {
                 preferencesController.cancelButtonAction();
             }
         });
+
+        showNumberNamesCheckbox.notifyListeners(SWT.Selection, new Event());
+
         shell.setDefaultButton(okButton);
     }
 
@@ -305,6 +344,14 @@ public class PreferencesView {
 
     public Label getHighlightColorColoredLabel() {
         return highlightColorColoredLabel;
+    }
+
+    public Label getNumberNamesFontValuesLabel() {
+        return numberNamesFontValuesLabel;
+    }
+
+    public Button getShowNumberNamesCheckbox() {
+        return showNumberNamesCheckbox;
     }
 
     public Display getDisplay() {

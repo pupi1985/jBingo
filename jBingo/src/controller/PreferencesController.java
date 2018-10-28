@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FontDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 
 import model.Bingo;
 import model.exceptions.InvalidAmountOfGridColumnsException;
@@ -21,6 +22,7 @@ import model.exceptions.InvalidHistoryLengthException;
 import model.exceptions.InvalidHistoryNumbersGapException;
 import model.exceptions.InvalidMaximumHistoryFontSizeException;
 import model.exceptions.InvalidMinimumHistoryFontSizeException;
+import model.exceptions.InvalidNumberNamesFontDataException;
 import model.exceptions.InvalidNumbersFontDataException;
 import model.exceptions.InvalidPickedNumberColorException;
 import model.exceptions.InvalidUnpickedNumberColorException;
@@ -40,6 +42,7 @@ public class PreferencesController {
     private RGB selectedPickedNumberColor;
     private RGB selectedUnpickedNumberColor;
     private RGB selectedHighlightColor;
+    private FontData selectedNumberNamesFontData;
 
     public PreferencesController(Bingo bingo, Display display, MainView mainView) {
         this.bingo = bingo;
@@ -49,19 +52,18 @@ public class PreferencesController {
         selectedPickedNumberColor = bingo.getSettingsManager().getPickedNumberColor();
         selectedUnpickedNumberColor = bingo.getSettingsManager().getUnpickedNumberColor();
         selectedHighlightColor = bingo.getSettingsManager().getHighlightColor();
+        selectedNumberNamesFontData = bingo.getSettingsManager().getNumberNamesFontData();
         preferencesView = new PreferencesView(bingo, this, display, mainView.getShell());
-        updateNumbersFontValuesLabelFromFontData(selectedNumbersFontData);
+        updateSampleFontLabelWithFontData(selectedNumbersFontData, preferencesView.getNumbersFontValuesLabel());
+        updateSampleFontLabelWithFontData(selectedNumberNamesFontData, preferencesView.getNumberNamesFontValuesLabel());
         preferencesView.open();
     }
 
-    private void updateNumbersFontValuesLabelFromFontData(FontData fontData) {
-        int fontSize = preferencesView.getNumbersFontValuesLabel().getFont().getFontData()[0].getHeight();
-        Label numbersFontValuesLabel = preferencesView.getNumbersFontValuesLabel();
-        String numbersFontValuesLabelText = Messages.getString("PreferencesView.NumbersFontSampleText", //$NON-NLS-1$
-                fontData.getName(), fontData.getHeight());
-        numbersFontValuesLabel.setText(numbersFontValuesLabelText);
-        numbersFontValuesLabel
-                .setFont(new Font(preferencesView.getDisplay(), fontData.getName(), fontSize, fontData.getStyle()));
+    private void updateSampleFontLabelWithFontData(FontData fontData, Label label) {
+        int fontSize = label.getFont().getFontData()[0].getHeight();
+        String fontSampleTextLabel = Messages.getString("PreferencesView.FontSampleText", fontData.getName(), fontData.getHeight()); //$NON-NLS-1$
+        label.setText(fontSampleTextLabel);
+        label.setFont(new Font(preferencesView.getDisplay(), fontData.getName(), fontSize, fontData.getStyle()));
     }
 
     /**
@@ -93,6 +95,8 @@ public class PreferencesController {
         RGB originalPickedNumberColor = bingo.getSettingsManager().getPickedNumberColor();
         RGB originalUnpickedNumberColor = bingo.getSettingsManager().getUnpickedNumberColor();
         RGB originalHighlightColor = bingo.getSettingsManager().getHighlightColor();
+        boolean originalShowNumberNames = bingo.getSettingsManager().getShowNumberNames();
+        FontData originalNumberNamesFontData = bingo.getSettingsManager().getNumberNamesFontData();
 
         try {
             bingo.getSettingsManager().setAmountOfNumbers(Integer.valueOf(preferencesView.getAmountOfNumbersText().getText()));
@@ -111,6 +115,11 @@ public class PreferencesController {
             bingo.getSettingsManager().setPickedNumberColor(selectedPickedNumberColor);
             bingo.getSettingsManager().setUnpickedNumberColor(selectedUnpickedNumberColor);
             bingo.getSettingsManager().setHighlightColor(selectedHighlightColor);
+            bingo.getSettingsManager().setShowNumberNames(preferencesView.getShowNumberNamesCheckbox().getSelection());
+            bingo.getSettingsManager().setNumberNamesFontDataFromValues(
+                    selectedNumberNamesFontData.getName(),
+                    selectedNumberNamesFontData.getHeight(),
+                    selectedNumberNamesFontData.getStyle());
             success = true;
         } catch (NumberFormatException
                 | InvalidHistoryLengthException
@@ -126,7 +135,7 @@ public class PreferencesController {
                 | InvalidPickedNumberColorException
                 | InvalidUnpickedNumberColorException
                 | InvalidHighlightColorException
-                e1) {
+                | InvalidNumberNamesFontDataException e1) {
             try {
                 bingo.getSettingsManager().setAmountOfNumbers(originalAmountOfNumbers);
                 bingo.getSettingsManager().setAmountOfGridColumns(originalAmountOfGridColumns);
@@ -139,6 +148,8 @@ public class PreferencesController {
                 bingo.getSettingsManager().setPickedNumberColor(originalPickedNumberColor);
                 bingo.getSettingsManager().setUnpickedNumberColor(originalUnpickedNumberColor);
                 bingo.getSettingsManager().setHighlightColor(originalHighlightColor);
+                bingo.getSettingsManager().setShowNumberNames(originalShowNumberNames);
+                bingo.getSettingsManager().setNumberNamesFontDataFromValues(originalNumberNamesFontData.getName(), originalNumberNamesFontData.getHeight(), originalNumberNamesFontData.getStyle());
             } catch (Exception e2) {
                 e2.printStackTrace();
             }
@@ -174,16 +185,20 @@ public class PreferencesController {
     }
 
     public void changeNumbersFontAction() {
-        FontDialog fontDialog = new FontDialog(preferencesView.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-        fontDialog.setEffectsVisible(false);
-        fontDialog.setFontList(new FontData[] { selectedNumbersFontData });
-        FontData fontData = fontDialog.open();
+        FontData fontData = this.openChangeFontDialog(preferencesView.getShell(), selectedNumbersFontData);
         if (fontData != null) {
             selectedNumbersFontData = fontData;
-            updateNumbersFontValuesLabelFromFontData(fontData);
+            updateSampleFontLabelWithFontData(fontData, preferencesView.getNumbersFontValuesLabel());
             preferencesView.getShell().layout(true, true);
         }
         preferencesView.getShell().pack();
+    }
+
+    private FontData openChangeFontDialog(Shell shell, FontData inputFont) {
+        FontDialog fontDialog = new FontDialog(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        fontDialog.setEffectsVisible(false);
+        fontDialog.setFontList(new FontData[] { inputFont });
+        return fontDialog.open();
     }
 
     private Color displayColorDialog(RGB selectedColor) {
@@ -223,5 +238,15 @@ public class PreferencesController {
             selectedHighlightColor = color.getRGB();
             preferencesView.getHighlightColorColoredLabel().setBackground(color);
         }
+    }
+
+    public void changeNumberNamesFontAction() {
+        FontData fontData = this.openChangeFontDialog(preferencesView.getShell(), selectedNumberNamesFontData);
+        if (fontData != null) {
+            selectedNumberNamesFontData = fontData;
+            updateSampleFontLabelWithFontData(fontData, preferencesView.getNumberNamesFontValuesLabel());
+            preferencesView.getShell().layout(true, true);
+        }
+        preferencesView.getShell().pack();
     }
 }

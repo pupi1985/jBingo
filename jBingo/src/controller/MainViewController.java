@@ -1,5 +1,7 @@
 package controller;
 
+import java.util.HashMap;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -16,17 +18,22 @@ public class MainViewController implements NumberBagListener {
     private MainView mainView;
     private Display display;
 
+    private HashMap<Integer, String> numberNames;
+
     public MainViewController(Bingo bingo, Display display) {
         this.bingo = bingo;
         this.display = display;
+        this.numberNames = bingo.getSettingsManager().getNumberNames();
+
         bingo.getNumberBag().addNumberBagListener(this);
+
         mainView = new MainView(bingo, display, this);
         mainView.open();
     }
 
     @Override
     public void numberPicked(int number) {
-        mainView.pickNumber(number);
+        mainView.pickNumber(number, numberNames.get(number));
     }
 
     @Override

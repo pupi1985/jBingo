@@ -35,12 +35,14 @@ public class MainView {
 
     private Composite mainPanel;
     private Composite historicalNumbersPanel;
+    private Composite numberNamesPanel;
+
     private Button pickNumberButton;
+    private Label numberNameLabel;
 
     private List<Label> numberLabels;
     private List<Label> historicalNumberLabels;
 
-    private Font numberLabelFont;
     private Color nonHighlightedBackgroundColor;
 
     private Runnable pickNumberTimer;
@@ -51,7 +53,6 @@ public class MainView {
 
     private MainViewController mainViewController;
     private Bingo bingo;
-
 
     public MainView(Bingo bingo, Display display, MainViewController mainViewController) {
         this.bingo = bingo;
@@ -104,11 +105,9 @@ public class MainView {
     public void createContents() {
         ViewUtils.removeAllChildren(shell);
         shell.setLayout(new MigLayout("wrap 1")); //$NON-NLS-1$
-        numberLabelFont = new Font(display, bingo.getSettingsManager().getNumbersFontData());
 
         mainPanel = new Composite(shell, SWT.NONE);
-        mainPanel.setLayout(new MigLayout(
-                String.format("wrap %d, fill, gap 10", bingo.getSettingsManager().getAmountOfGridColumns()))); //$NON-NLS-1$
+        mainPanel.setLayout(new MigLayout(String.format("wrap %d, fill, gap 10", bingo.getSettingsManager().getAmountOfGridColumns()))); // $NON-NLS-1$
         mainPanel.setLayoutData("grow, push"); //$NON-NLS-1$
 
         Label mainPanelSeparator = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
@@ -125,11 +124,23 @@ public class MainView {
         pickNumberButton.setLayoutData("growy, pushy, sizegroup bottomButton, hmin 100"); //$NON-NLS-1$
         pickNumberButton.setText(Messages.getString("MainView.NextNumber")); //$NON-NLS-1$
 
-        historicalNumbersPanel = new Composite(bottomPanel, SWT.NONE);
+        Composite middleBottomPanel = new Composite(bottomPanel, SWT.NONE);
+        middleBottomPanel.setLayout(new MigLayout("fill")); //$NON-NLS-1$
+        middleBottomPanel.setLayoutData("growx, pushx"); //$NON-NLS-1$
+
+        historicalNumbersPanel = new Composite(middleBottomPanel, SWT.NONE);
         historicalNumbersPanel.setLayout(new MigLayout(String.format("fill, hidemode 3, gap %d", bingo.getSettingsManager().getHistoryNumbersGap()))); // $NON-NLS-1$
-        historicalNumbersPanel.setLayoutData("align center"); //$NON-NLS-1$
+        historicalNumbersPanel.setLayoutData("align center, wrap"); //$NON-NLS-1$
 
         createHistoricalNumberControls();
+
+        numberNamesPanel = new Composite(middleBottomPanel, SWT.NONE);
+        numberNamesPanel.setLayout(new MigLayout("fill")); // $NON-NLS-1$
+        numberNamesPanel.setLayoutData("align center, hidemode 3"); //$NON-NLS-1$
+
+        numberNameLabel = new Label(numberNamesPanel, SWT.NONE);
+        Font numberNamesLabelFont = new Font(display, bingo.getSettingsManager().getNumberNamesFontData());
+        numberNameLabel.setFont(numberNamesLabelFont);
 
         Button resetButton = new Button(bottomPanel, SWT.PUSH);
         resetButton.setLayoutData("growy, pushy, align right, sizegroup bottomButton"); //$NON-NLS-1$
@@ -155,6 +166,7 @@ public class MainView {
         });
         setupGrid();
         setupHistoricalNumbers();
+        setupNumberNamesPanel();
     }
 
     private void createHistoricalNumberControls() {
@@ -233,21 +245,25 @@ public class MainView {
     private void setupGrid() {
         numberLabels.clear();
         mainPanel.setVisible(false);
+
         ViewUtils.removeAllChildren(mainPanel);
+
         Color fontColor = new Color(display, bingo.getSettingsManager().getUnpickedNumberColor());
+        Font numberLabelFont = new Font(display, bingo.getSettingsManager().getNumbersFontData());
+
         int numberAmount = bingo.getNumberBag().getNumberAmount();
         for (int i = 0; i < numberAmount; i++) {
             Composite mainLabelComposite = new Composite(mainPanel, SWT.BORDER);
             mainLabelComposite.setLayout(new MigLayout("fill, insets 0")); //$NON-NLS-1$
             mainLabelComposite.setLayoutData("grow, push, sizegroup mainLabelComposite"); //$NON-NLS-1$
             Label label = new Label(mainLabelComposite, SWT.CENTER);
-            label.setLayoutData("align center, gap 0"); //$NON-NLS-1$
+            label.setLayoutData("align center, gap 0, growx"); //$NON-NLS-1$
             label.setText(String.valueOf(i + 1));
             label.setFont(numberLabelFont);
             label.setForeground(fontColor);
             numberLabels.add(label);
         }
-        this.nonHighlightedBackgroundColor = numberLabels.get(0).getParent().getBackground();
+        nonHighlightedBackgroundColor = numberLabels.get(0).getParent().getBackground();
         mainPanel.layout();
         mainPanel.setVisible(true);
     }
@@ -262,11 +278,16 @@ public class MainView {
         historicalNumbersPanel.getParent().layout();
     }
 
+    private void setupNumberNamesPanel() {
+        numberNamesPanel.setVisible(bingo.getSettingsManager().getShowNumberNames());
+    }
+
     public void reset() {
         pickNumberButtonReset(true);
         pickNumberSecondsLeft = 0;
         setupGrid();
         setupHistoricalNumbers();
+        setupNumberNamesPanel();
     }
 
     private void pickNumberButtonReset(boolean enabled) {
@@ -276,14 +297,14 @@ public class MainView {
         pickNumberButton.getParent().layout();
     }
 
-    public void pickNumber(int number) {
+    public void pickNumber(int number, String numberName) {
         Label label = getMainNumberLabelFromNumber(number);
         List<Integer> historicalNumbers = bingo.getNumberBag().getPickedNumbers();
+
         Color currentNumberFontColor = new Color(display, bingo.getSettingsManager().getCurrentNumberColor());
         label.setForeground(currentNumberFontColor);
 
         Color highlightColor = new Color(display, bingo.getSettingsManager().getHighlightColor());
-
         new LabelHighlighter(this.display, label, highlightColor).run();
 
         try {
@@ -296,6 +317,8 @@ public class MainView {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        this.numberNameLabel.setText(numberName == null ? "" : numberName);
 
         updateHistoricalNumbers(number);
     }

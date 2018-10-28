@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Properties;
 
 import org.eclipse.swt.SWT;
@@ -21,14 +22,18 @@ import model.exceptions.InvalidHistoryLengthException;
 import model.exceptions.InvalidHistoryNumbersGapException;
 import model.exceptions.InvalidMaximumHistoryFontSizeException;
 import model.exceptions.InvalidMinimumHistoryFontSizeException;
+import model.exceptions.InvalidNumberNamesFontDataException;
 import model.exceptions.InvalidNumbersFontDataException;
 import model.exceptions.InvalidPickedNumberColorException;
 import model.exceptions.InvalidUnpickedNumberColorException;
 import model.exceptions.InvalidWaitingSecondsBetweenNumbersException;
+import model.helpers.ArrayPropertiesHandler;
 
 public class SettingsManager {
 
     private static final String SETTINGS_FILE = "config.properties"; //$NON-NLS-1$
+    private static final String NUMBERS_FILE = "numbers.properties"; //$NON-NLS-1$
+
     private static final String SETTING_AMOUNT_OF_NUMBERS = "amountOfNumbers"; //$NON-NLS-1$
     private static final String SETTING_AMOUNT_OF_GRID_COLUMNS = "amountOfGridColumns"; //$NON-NLS-1$
     private static final String SETTING_WAITING_SECONDS_BETWEEN_NUMBERS = "waitingSecondsBetweenNumbers"; //$NON-NLS-1$
@@ -41,6 +46,10 @@ public class SettingsManager {
     private static final String SETTING_PICKED_NUMBER_COLOR = "pickedNumberColor"; //$NON-NLS-1$
     private static final String SETTING_UNPICKED_NUMBER_COLOR = "unpickedNumberColor"; //$NON-NLS-1$
     private static final String SETTING_HIGHLIGHT_COLOR = "highlightColor"; //$NON-NLS-1$
+    private static final String SETTING_SHOW_NUMBER_NAMES = "showNumberNames"; //$NON-NLS-1$
+    private static final String SETTING_NUMBER_NAMES_FONT_DATA = "numberNamesFontData"; //$NON-NLS-1$
+
+    private static final String SETTING_NUMBER_NAMES = "numberNames"; //$NON-NLS-1$
 
     private int amountOfNumbers = 90;
     private int amountOfGridColumns = 10;
@@ -54,6 +63,10 @@ public class SettingsManager {
     private RGB pickedNumberColor;
     private RGB unpickedNumberColor;
     private RGB highlightColor;
+    private boolean showNumberNames = true;
+    private FontData numberNamesFontData;
+
+    private HashMap<Integer, String> numberNames;
 
     public void loadFromFile(Display display) {
         File file = new File(SETTINGS_FILE);
@@ -123,6 +136,38 @@ public class SettingsManager {
             } catch (Exception e) {
                 highlightColor = new RGB(255, 251, 204);
             }
+            try {
+                showNumberNames = Boolean.valueOf(properties.getProperty(SETTING_SHOW_NUMBER_NAMES));
+            } catch (Exception e) {
+            }
+            try {
+                numberNamesFontData = new FontData(properties.getProperty(SETTING_NUMBER_NAMES_FONT_DATA));
+            } catch (Exception e1) {
+                try { // Make every possible effort to create a valid font
+                    FontData systemFont = display.getSystemFont().getFontData()[0];
+                    setNumberNamesFontDataFromValues(systemFont.getName(), systemFont.getHeight() * 2, SWT.BOLD);
+                } catch (Exception e2) {
+                    setNumberNamesFontDataFromValues("", 20, SWT.BOLD); //$NON-NLS-1$
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        file = new File(NUMBERS_FILE);
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
+            Properties properties = new Properties();
+            properties.load(fileInputStream);
+            try {
+                numberNames = new ArrayPropertiesHandler().getArrayPorperties(properties, SETTING_NUMBER_NAMES);
+            } catch (Exception e) {
+                numberNames = new HashMap<>();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -143,6 +188,8 @@ public class SettingsManager {
             properties.setProperty(SETTING_PICKED_NUMBER_COLOR, RgbSerializer.rgbToString(pickedNumberColor));
             properties.setProperty(SETTING_UNPICKED_NUMBER_COLOR, RgbSerializer.rgbToString(unpickedNumberColor));
             properties.setProperty(SETTING_HIGHLIGHT_COLOR, RgbSerializer.rgbToString(highlightColor));
+            properties.setProperty(SETTING_SHOW_NUMBER_NAMES, String.valueOf(showNumberNames));
+            properties.setProperty(SETTING_NUMBER_NAMES_FONT_DATA, String.valueOf(numberNamesFontData));
             properties.store(fileOutputStream, null);
         } catch (Exception e) {
             e.printStackTrace();
@@ -303,5 +350,29 @@ public class SettingsManager {
             throw new InvalidHighlightColorException();
         }
         this.highlightColor = highlightColor;
+    }
+
+    public HashMap<Integer, String> getNumberNames() {
+        return numberNames;
+    }
+
+    public boolean getShowNumberNames() {
+        return showNumberNames;
+    }
+
+    public void setShowNumberNames(boolean showNumberNames) {
+        this.showNumberNames = showNumberNames;
+    }
+
+    public FontData getNumberNamesFontData() {
+        return numberNamesFontData;
+    }
+
+    public void setNumberNamesFontDataFromValues(String fontName, int fontSize, int fontStyle) throws InvalidNumberNamesFontDataException {
+        try {
+            numberNamesFontData = new FontData(fontName, fontSize, fontStyle);
+        } catch (Exception e) {
+            throw new InvalidNumberNamesFontDataException();
+        }
     }
 }
