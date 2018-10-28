@@ -11,6 +11,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -40,6 +41,7 @@ public class MainView {
     private List<Label> historicalNumberLabels;
 
     private Font numberLabelFont;
+    private Color nonHighlightedBackgroundColor;
 
     private Runnable pickNumberTimer;
     private int pickNumberSecondsLeft;
@@ -49,6 +51,7 @@ public class MainView {
 
     private MainViewController mainViewController;
     private Bingo bingo;
+
 
     public MainView(Bingo bingo, Display display, MainViewController mainViewController) {
         this.bingo = bingo;
@@ -123,8 +126,7 @@ public class MainView {
         pickNumberButton.setText(Messages.getString("MainView.NextNumber")); //$NON-NLS-1$
 
         historicalNumbersPanel = new Composite(bottomPanel, SWT.NONE);
-        historicalNumbersPanel.setLayout(new MigLayout(
-                String.format("fill, hidemode 3, gap %d", bingo.getSettingsManager().getHistoryNumbersGap()))); //$NON-NLS-1$
+        historicalNumbersPanel.setLayout(new MigLayout(String.format("fill, hidemode 3, gap %d", bingo.getSettingsManager().getHistoryNumbersGap()))); // $NON-NLS-1$
         historicalNumbersPanel.setLayoutData("align center"); //$NON-NLS-1$
 
         createHistoricalNumberControls();
@@ -160,8 +162,7 @@ public class MainView {
         FontDescriptor fontDescriptor = FontDescriptor.createFrom(bingo.getSettingsManager().getNumbersFontData());
         int maximumHistoryLength = bingo.getSettingsManager().getMaximumHistoryLength();
         int minimumHistoryFontSize = bingo.getSettingsManager().getMinimumHistoryFontSize();
-        double fontSizeIncrement = (bingo.getSettingsManager().getMaximumHistoryFontSize() - minimumHistoryFontSize)
-                / (double) (maximumHistoryLength - 1);
+        double fontSizeIncrement = (bingo.getSettingsManager().getMaximumHistoryFontSize() - minimumHistoryFontSize) / (double) (maximumHistoryLength - 1);
         for (int i = 0; i < maximumHistoryLength; i++) {
             int fontSize = minimumHistoryFontSize + (int) Math.round(i * fontSizeIncrement);
             Label label = new Label(historicalNumbersPanel, SWT.NONE);
@@ -239,13 +240,14 @@ public class MainView {
             Composite mainLabelComposite = new Composite(mainPanel, SWT.BORDER);
             mainLabelComposite.setLayout(new MigLayout("fill, insets 0")); //$NON-NLS-1$
             mainLabelComposite.setLayoutData("grow, push, sizegroup mainLabelComposite"); //$NON-NLS-1$
-            Label label = new Label(mainLabelComposite, SWT.NONE);
+            Label label = new Label(mainLabelComposite, SWT.CENTER);
             label.setLayoutData("align center, gap 0"); //$NON-NLS-1$
             label.setText(String.valueOf(i + 1));
             label.setFont(numberLabelFont);
             label.setForeground(fontColor);
             numberLabels.add(label);
         }
+        this.nonHighlightedBackgroundColor = numberLabels.get(0).getParent().getBackground();
         mainPanel.layout();
         mainPanel.setVisible(true);
     }
@@ -279,15 +281,22 @@ public class MainView {
         List<Integer> historicalNumbers = bingo.getNumberBag().getPickedNumbers();
         Color currentNumberFontColor = new Color(display, bingo.getSettingsManager().getCurrentNumberColor());
         label.setForeground(currentNumberFontColor);
+
+        Color highlightColor = new Color(display, bingo.getSettingsManager().getHighlightColor());
+
+        new LabelHighlighter(this.display, label, highlightColor).run();
+
         try {
             int previousNumber = historicalNumbers.get(historicalNumbers.size() - 2);
             Label previousNumberLabel = getMainNumberLabelFromNumber(previousNumber);
+            previousNumberLabel.getParent().setBackground(this.nonHighlightedBackgroundColor);
             Color previousNumberFontColor = new Color(display, bingo.getSettingsManager().getPickedNumberColor());
             previousNumberLabel.setForeground(previousNumberFontColor);
         } catch (IndexOutOfBoundsException e) {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         updateHistoricalNumbers(number);
     }
 
@@ -337,6 +346,39 @@ public class MainView {
                     pickNumberButtonReset(true);
                 }
             }
+        }
+    }
+
+    private class LabelHighlighter implements Runnable {
+
+        private Display display;
+        private Label label;
+        private RGB highlightColor;
+        private Color initialColor;
+        private int alpha = 255;
+
+        public LabelHighlighter(Display display, Label label, Color highlightColor) {
+            this.display = display;
+            this.label = label;
+            this.highlightColor = highlightColor.getRGB();
+            this.initialColor = label.getBackground();
+        }
+
+        @Override
+        public void run() {
+            if (label.isDisposed()) {
+                return;
+            }
+
+            if (alpha < 0) {
+                label.getParent().setBackground(this.initialColor);
+
+                return;
+            }
+
+            label.getParent().setBackground(new Color(display, highlightColor, alpha));
+            alpha -= 5;
+            display.timerExec(30, this);
         }
     }
 }

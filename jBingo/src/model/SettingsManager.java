@@ -15,6 +15,7 @@ import controller.serialization.RgbSerializer;
 import model.exceptions.InvalidAmountOfGridColumnsException;
 import model.exceptions.InvalidAmountOfNumbersException;
 import model.exceptions.InvalidCurrentNumberColorException;
+import model.exceptions.InvalidHighlightColorException;
 import model.exceptions.InvalidHistoryFontSizesException;
 import model.exceptions.InvalidHistoryLengthException;
 import model.exceptions.InvalidHistoryNumbersGapException;
@@ -39,6 +40,7 @@ public class SettingsManager {
     private static final String SETTING_CURRENT_NUMBER_COLOR = "currentNumberColor"; //$NON-NLS-1$
     private static final String SETTING_PICKED_NUMBER_COLOR = "pickedNumberColor"; //$NON-NLS-1$
     private static final String SETTING_UNPICKED_NUMBER_COLOR = "unpickedNumberColor"; //$NON-NLS-1$
+    private static final String SETTING_HIGHLIGHT_COLOR = "highlightColor"; //$NON-NLS-1$
 
     private int amountOfNumbers = 90;
     private int amountOfGridColumns = 10;
@@ -51,6 +53,7 @@ public class SettingsManager {
     private RGB currentNumberColor;
     private RGB pickedNumberColor;
     private RGB unpickedNumberColor;
+    private RGB highlightColor;
 
     public void loadFromFile(Display display) {
         File file = new File(SETTINGS_FILE);
@@ -71,8 +74,7 @@ public class SettingsManager {
             } catch (Exception e) {
             }
             try {
-                waitingSecondsBetweenNumbers = Integer
-                        .valueOf(properties.getProperty(SETTING_WAITING_SECONDS_BETWEEN_NUMBERS));
+                waitingSecondsBetweenNumbers = Integer.valueOf(properties.getProperty(SETTING_WAITING_SECONDS_BETWEEN_NUMBERS));
             } catch (Exception e) {
             }
             try {
@@ -116,6 +118,11 @@ public class SettingsManager {
             } catch (Exception e) {
                 unpickedNumberColor = display.getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW).getRGB();
             }
+            try {
+                highlightColor = RgbSerializer.stringToRGB(properties.getProperty(SETTING_HIGHLIGHT_COLOR));
+            } catch (Exception e) {
+                highlightColor = new RGB(255, 251, 204);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -126,8 +133,7 @@ public class SettingsManager {
             Properties properties = new Properties();
             properties.setProperty(SETTING_AMOUNT_OF_NUMBERS, String.valueOf(amountOfNumbers));
             properties.setProperty(SETTING_AMOUNT_OF_GRID_COLUMNS, String.valueOf(amountOfGridColumns));
-            properties.setProperty(SETTING_WAITING_SECONDS_BETWEEN_NUMBERS,
-                    String.valueOf(waitingSecondsBetweenNumbers));
+            properties.setProperty(SETTING_WAITING_SECONDS_BETWEEN_NUMBERS, String.valueOf(waitingSecondsBetweenNumbers));
             properties.setProperty(SETTING_NUMBERS_FONT_DATA, String.valueOf(numbersFontData));
             properties.setProperty(SETTING_MAXIMUM_HISTORY_LENGTH, String.valueOf(maximumHistoryLength));
             properties.setProperty(SETTING_MINIMUM_HISTORY_FONT_SIZE, String.valueOf(minimumHistoryFontSize));
@@ -136,6 +142,7 @@ public class SettingsManager {
             properties.setProperty(SETTING_CURRENT_NUMBER_COLOR, RgbSerializer.rgbToString(currentNumberColor));
             properties.setProperty(SETTING_PICKED_NUMBER_COLOR, RgbSerializer.rgbToString(pickedNumberColor));
             properties.setProperty(SETTING_UNPICKED_NUMBER_COLOR, RgbSerializer.rgbToString(unpickedNumberColor));
+            properties.setProperty(SETTING_HIGHLIGHT_COLOR, RgbSerializer.rgbToString(highlightColor));
             properties.store(fileOutputStream, null);
         } catch (Exception e) {
             e.printStackTrace();
@@ -191,8 +198,7 @@ public class SettingsManager {
         return numbersFontData;
     }
 
-    public void setNumbersFontDataFromValues(String fontName, int fontSize, int fontStyle)
-            throws InvalidNumbersFontDataException {
+    public void setNumbersFontDataFromValues(String fontName, int fontSize, int fontStyle) throws InvalidNumbersFontDataException {
         try {
             numbersFontData = new FontData(fontName, fontSize, fontStyle);
         } catch (Exception e) {
@@ -227,8 +233,7 @@ public class SettingsManager {
     }
 
     public void setHistoryFontSizes(int minimumHistoryFontSize, int maximumHistoryFontSize)
-            throws InvalidMinimumHistoryFontSizeException, InvalidMaximumHistoryFontSizeException,
-            InvalidHistoryFontSizesException {
+            throws InvalidMinimumHistoryFontSizeException, InvalidMaximumHistoryFontSizeException, InvalidHistoryFontSizesException {
         if (minimumHistoryFontSize <= maximumHistoryFontSize) {
             int originalMinimumHistoryFontSize = minimumHistoryFontSize;
             int originalMaximumHistoryFontSize = maximumHistoryFontSize;
@@ -287,5 +292,16 @@ public class SettingsManager {
             throw new InvalidUnpickedNumberColorException();
         }
         this.unpickedNumberColor = unpickedNumberColor;
+    }
+
+    public RGB getHighlightColor() {
+        return highlightColor;
+    }
+
+    public void setHighlightColor(RGB highlightColor) throws InvalidHighlightColorException {
+        if (highlightColor == null) {
+            throw new InvalidHighlightColorException();
+        }
+        this.highlightColor = highlightColor;
     }
 }

@@ -34,15 +34,12 @@ public class PreferencesView {
     private Label currentNumberColorColoredLabel;
     private Label pickedNumberColorColoredLabel;
     private Label unpickedNumberColorColoredLabel;
+    private Label highlightColorColoredLabel;
 
     private PreferencesController preferencesController;
     private Bingo bingo;
 
-    public PreferencesView(
-            Bingo bingo,
-            PreferencesController preferencesController,
-            Display display,
-            Shell parentShell) {
+    public PreferencesView(Bingo bingo, PreferencesController preferencesController, Display display, Shell parentShell) {
         this.bingo = bingo;
         this.preferencesController = preferencesController;
         this.display = display;
@@ -92,8 +89,7 @@ public class PreferencesView {
 
         waitingSecondsBetweenNumbersText = new Text(mainPanel, SWT.BORDER);
         waitingSecondsBetweenNumbersText.setLayoutData("wmin 30pt"); //$NON-NLS-1$
-        waitingSecondsBetweenNumbersText
-                .setText(String.valueOf(bingo.getSettingsManager().getWaitingSecondsBetweenNumbers()));
+        waitingSecondsBetweenNumbersText.setText(String.valueOf(bingo.getSettingsManager().getWaitingSecondsBetweenNumbers()));
         waitingSecondsBetweenNumbersText.addListener(SWT.Verify, ViewUtils.getNumericalValidator());
 
         Label numbersFontLabel = new Label(mainPanel, SWT.NONE);
@@ -164,8 +160,7 @@ public class PreferencesView {
 
         currentNumberColorColoredLabel = new Label(mainPanel, SWT.NONE);
         currentNumberColorColoredLabel.setLayoutData("wmin 30pt"); //$NON-NLS-1$
-        currentNumberColorColoredLabel
-                .setBackground(new Color(display, bingo.getSettingsManager().getCurrentNumberColor()));
+        currentNumberColorColoredLabel.setBackground(new Color(display, bingo.getSettingsManager().getCurrentNumberColor()));
 
         Label pickedNumberColorLabel = new Label(mainPanel, SWT.NONE);
         pickedNumberColorLabel.setLayoutData("gapleft 15pt"); //$NON-NLS-1$
@@ -183,8 +178,7 @@ public class PreferencesView {
 
         pickedNumberColorColoredLabel = new Label(mainPanel, SWT.NONE);
         pickedNumberColorColoredLabel.setLayoutData("wmin 30pt"); //$NON-NLS-1$
-        pickedNumberColorColoredLabel
-                .setBackground(new Color(display, bingo.getSettingsManager().getPickedNumberColor()));
+        pickedNumberColorColoredLabel.setBackground(new Color(display, bingo.getSettingsManager().getPickedNumberColor()));
 
         Label unpickedNumberColorLabel = new Label(mainPanel, SWT.NONE);
         unpickedNumberColorLabel.setLayoutData("gapleft 15pt"); //$NON-NLS-1$
@@ -202,8 +196,25 @@ public class PreferencesView {
 
         unpickedNumberColorColoredLabel = new Label(mainPanel, SWT.NONE);
         unpickedNumberColorColoredLabel.setLayoutData("wmin 30pt"); //$NON-NLS-1$
-        unpickedNumberColorColoredLabel
-                .setBackground(new Color(display, bingo.getSettingsManager().getUnpickedNumberColor()));
+        unpickedNumberColorColoredLabel.setBackground(new Color(display, bingo.getSettingsManager().getUnpickedNumberColor()));
+
+        Label highlightColorLabel = new Label(mainPanel, SWT.NONE);
+        highlightColorLabel.setLayoutData("gapleft 15pt"); //$NON-NLS-1$
+        highlightColorLabel.setText(Messages.getString("PreferencesView.Highlight")); //$NON-NLS-1$
+
+        Button changeHighlightColorButton = new Button(mainPanel, SWT.PUSH);
+        changeHighlightColorButton.setLayoutData("split 2"); //$NON-NLS-1$
+        changeHighlightColorButton.setText(Messages.getString("PreferencesView.ChangeColor")); //$NON-NLS-1$
+        changeHighlightColorButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                preferencesController.changeHighlightColorAction();
+            }
+        });
+
+        highlightColorColoredLabel = new Label(mainPanel, SWT.NONE);
+        highlightColorColoredLabel.setLayoutData("wmin 30pt"); //$NON-NLS-1$
+        highlightColorColoredLabel.setBackground(new Color(display, bingo.getSettingsManager().getHighlightColor()));
 
         // Start bottom panel
 
@@ -290,6 +301,10 @@ public class PreferencesView {
 
     public Label getUnpickedNumberColorColoredLabel() {
         return unpickedNumberColorColoredLabel;
+    }
+
+    public Label getHighlightColorColoredLabel() {
+        return highlightColorColoredLabel;
     }
 
     public Display getDisplay() {

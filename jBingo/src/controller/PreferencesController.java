@@ -15,6 +15,7 @@ import model.Bingo;
 import model.exceptions.InvalidAmountOfGridColumnsException;
 import model.exceptions.InvalidAmountOfNumbersException;
 import model.exceptions.InvalidCurrentNumberColorException;
+import model.exceptions.InvalidHighlightColorException;
 import model.exceptions.InvalidHistoryFontSizesException;
 import model.exceptions.InvalidHistoryLengthException;
 import model.exceptions.InvalidHistoryNumbersGapException;
@@ -38,6 +39,7 @@ public class PreferencesController {
     private RGB selectedCurrentNumberColor;
     private RGB selectedPickedNumberColor;
     private RGB selectedUnpickedNumberColor;
+    private RGB selectedHighlightColor;
 
     public PreferencesController(Bingo bingo, Display display, MainView mainView) {
         this.bingo = bingo;
@@ -46,6 +48,7 @@ public class PreferencesController {
         selectedCurrentNumberColor = bingo.getSettingsManager().getCurrentNumberColor();
         selectedPickedNumberColor = bingo.getSettingsManager().getPickedNumberColor();
         selectedUnpickedNumberColor = bingo.getSettingsManager().getUnpickedNumberColor();
+        selectedHighlightColor = bingo.getSettingsManager().getHighlightColor();
         preferencesView = new PreferencesView(bingo, this, display, mainView.getShell());
         updateNumbersFontValuesLabelFromFontData(selectedNumbersFontData);
         preferencesView.open();
@@ -73,7 +76,7 @@ public class PreferencesController {
 
     /**
      * Sets all values without closing the shell. If there is an exception while
-     * setting any of them they are all reset to their original values. Retruns TRUE
+     * setting any of them they are all reset to their original values. Returns TRUE
      * when the changes are applied and FALSE otherwise
      */
     public boolean applyButtonAction() {
@@ -89,55 +92,60 @@ public class PreferencesController {
         RGB originalCurrentNumberColor = bingo.getSettingsManager().getCurrentNumberColor();
         RGB originalPickedNumberColor = bingo.getSettingsManager().getPickedNumberColor();
         RGB originalUnpickedNumberColor = bingo.getSettingsManager().getUnpickedNumberColor();
+        RGB originalHighlightColor = bingo.getSettingsManager().getHighlightColor();
+
         try {
-            bingo.getSettingsManager()
-                    .setAmountOfNumbers(Integer.valueOf(preferencesView.getAmountOfNumbersText().getText()));
-            bingo.getSettingsManager()
-                    .setAmountOfGridColumns(Integer.valueOf(preferencesView.getAmountOfGridColumnsText().getText()));
-            bingo.getSettingsManager().setWaitingSecondsBetweenNumbers(
-                    Integer.valueOf(preferencesView.getWaitingSecondsBetweenNumbersText().getText()));
-            bingo.getSettingsManager().setNumbersFontDataFromValues(selectedNumbersFontData.getName(),
-                    selectedNumbersFontData.getHeight(), selectedNumbersFontData.getStyle());
-            bingo.getSettingsManager()
-                    .setMaximumHistoryLength(Integer.valueOf(preferencesView.getMaximumHistoryLengthText().getText()));
+            bingo.getSettingsManager().setAmountOfNumbers(Integer.valueOf(preferencesView.getAmountOfNumbersText().getText()));
+            bingo.getSettingsManager().setAmountOfGridColumns(Integer.valueOf(preferencesView.getAmountOfGridColumnsText().getText()));
+            bingo.getSettingsManager().setWaitingSecondsBetweenNumbers(Integer.valueOf(preferencesView.getWaitingSecondsBetweenNumbersText().getText()));
+            bingo.getSettingsManager().setNumbersFontDataFromValues(
+                    selectedNumbersFontData.getName(),
+                    selectedNumbersFontData.getHeight(),
+                    selectedNumbersFontData.getStyle());
+            bingo.getSettingsManager().setMaximumHistoryLength(Integer.valueOf(preferencesView.getMaximumHistoryLengthText().getText()));
             bingo.getSettingsManager().setHistoryFontSizes(
                     Integer.valueOf(preferencesView.getMinimumHistoryFontSizeText().getText()),
                     Integer.valueOf(preferencesView.getMaximumHistoryFontSizeText().getText()));
-            bingo.getSettingsManager()
-                    .setHistoryNumbersGap(Integer.valueOf(preferencesView.getHistoryNumbersGapText().getText()));
+            bingo.getSettingsManager().setHistoryNumbersGap(Integer.valueOf(preferencesView.getHistoryNumbersGapText().getText()));
             bingo.getSettingsManager().setCurrentNumberColor(selectedCurrentNumberColor);
             bingo.getSettingsManager().setPickedNumberColor(selectedPickedNumberColor);
             bingo.getSettingsManager().setUnpickedNumberColor(selectedUnpickedNumberColor);
+            bingo.getSettingsManager().setHighlightColor(selectedHighlightColor);
             success = true;
-        } catch (NumberFormatException | InvalidHistoryLengthException | InvalidAmountOfNumbersException
-                | InvalidWaitingSecondsBetweenNumbersException | InvalidNumbersFontDataException
+        } catch (NumberFormatException
+                | InvalidHistoryLengthException
+                | InvalidAmountOfNumbersException
+                | InvalidWaitingSecondsBetweenNumbersException
+                | InvalidNumbersFontDataException
                 | InvalidMinimumHistoryFontSizeException
-                | InvalidMaximumHistoryFontSizeException | InvalidHistoryFontSizesException
+                | InvalidMaximumHistoryFontSizeException
+                | InvalidHistoryFontSizesException
                 | InvalidHistoryNumbersGapException
-                | InvalidAmountOfGridColumnsException | InvalidCurrentNumberColorException
+                | InvalidAmountOfGridColumnsException
+                | InvalidCurrentNumberColorException
                 | InvalidPickedNumberColorException
-                | InvalidUnpickedNumberColorException e1) {
+                | InvalidUnpickedNumberColorException
+                | InvalidHighlightColorException
+                e1) {
             try {
                 bingo.getSettingsManager().setAmountOfNumbers(originalAmountOfNumbers);
                 bingo.getSettingsManager().setAmountOfGridColumns(originalAmountOfGridColumns);
                 bingo.getSettingsManager().setWaitingSecondsBetweenNumbers(originalWaitingSecondsBetweenNumbers);
-                bingo.getSettingsManager().setNumbersFontDataFromValues(originalNumbersFontData.getName(),
-                        originalNumbersFontData.getHeight(), originalNumbersFontData.getStyle());
+                bingo.getSettingsManager().setNumbersFontDataFromValues(originalNumbersFontData.getName(), originalNumbersFontData.getHeight(), originalNumbersFontData.getStyle());
                 bingo.getSettingsManager().setMaximumHistoryLength(originalMaximumHistoryLength);
-                bingo.getSettingsManager().setHistoryFontSizes(originalMinimumHistoryFontSize,
-                        originalMaximumHistoryFontSize);
+                bingo.getSettingsManager().setHistoryFontSizes(originalMinimumHistoryFontSize, originalMaximumHistoryFontSize);
                 bingo.getSettingsManager().setHistoryNumbersGap(originalHistoryNumbersGap);
                 bingo.getSettingsManager().setCurrentNumberColor(originalCurrentNumberColor);
                 bingo.getSettingsManager().setPickedNumberColor(originalPickedNumberColor);
                 bingo.getSettingsManager().setUnpickedNumberColor(originalUnpickedNumberColor);
+                bingo.getSettingsManager().setHighlightColor(originalHighlightColor);
             } catch (Exception e2) {
                 e2.printStackTrace();
             }
         }
         if (success) { // Apply changes to the view and model
             if (bingo.getGameStarted()) {
-                MessageBox messageBox = new MessageBox(preferencesView.getShell(),
-                        SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+                MessageBox messageBox = new MessageBox(preferencesView.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
                 messageBox.setText(Messages.getString("PreferencesView.ResetConfirmationTitle")); //$NON-NLS-1$
                 messageBox.setMessage(Messages.getString("PreferencesView.ResetConfirmationText")); //$NON-NLS-1$
                 int answer = messageBox.open();
@@ -206,6 +214,14 @@ public class PreferencesController {
         if (color != null) {
             selectedUnpickedNumberColor = color.getRGB();
             preferencesView.getUnpickedNumberColorColoredLabel().setBackground(color);
+        }
+    }
+
+    public void changeHighlightColorAction() {
+        Color color = displayColorDialog(selectedHighlightColor);
+        if (color != null) {
+            selectedHighlightColor = color.getRGB();
+            preferencesView.getHighlightColorColoredLabel().setBackground(color);
         }
     }
 }
