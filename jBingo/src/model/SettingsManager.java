@@ -233,8 +233,7 @@ public class SettingsManager {
         return waitingSecondsBetweenNumbers;
     }
 
-    public void setWaitingSecondsBetweenNumbers(int waitingSecondsBetweenNumbers)
-            throws InvalidWaitingSecondsBetweenNumbersException {
+    public void setWaitingSecondsBetweenNumbers(int waitingSecondsBetweenNumbers) throws InvalidWaitingSecondsBetweenNumbersException {
         if (waitingSecondsBetweenNumbers < 0) {
             throw new InvalidWaitingSecondsBetweenNumbersException();
         }
@@ -279,8 +278,8 @@ public class SettingsManager {
         this.maximumHistoryFontSize = maximumHistoryFontSize;
     }
 
-    public void setHistoryFontSizes(int minimumHistoryFontSize, int maximumHistoryFontSize)
-            throws InvalidMinimumHistoryFontSizeException, InvalidMaximumHistoryFontSizeException, InvalidHistoryFontSizesException {
+    public void setHistoryFontSizes(int minimumHistoryFontSize, int maximumHistoryFontSize) throws InvalidMinimumHistoryFontSizeException,
+            InvalidMaximumHistoryFontSizeException, InvalidHistoryFontSizesException {
         if (minimumHistoryFontSize <= maximumHistoryFontSize) {
             int originalMinimumHistoryFontSize = minimumHistoryFontSize;
             int originalMaximumHistoryFontSize = maximumHistoryFontSize;

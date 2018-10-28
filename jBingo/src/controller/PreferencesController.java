@@ -137,6 +137,11 @@ public class PreferencesController {
                 | InvalidHighlightColorException
                 | InvalidNumberNamesFontDataException e1) {
             try {
+                MessageBox messageBox = new MessageBox(preferencesView.getShell(), SWT.ICON_ERROR | SWT.OK);
+                messageBox.setText(Messages.getString("Application.Error")); //$NON-NLS-1$
+                messageBox.setMessage(e1.getMessage());
+                messageBox.open();
+
                 bingo.getSettingsManager().setAmountOfNumbers(originalAmountOfNumbers);
                 bingo.getSettingsManager().setAmountOfGridColumns(originalAmountOfGridColumns);
                 bingo.getSettingsManager().setWaitingSecondsBetweenNumbers(originalWaitingSecondsBetweenNumbers);
