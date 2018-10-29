@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Properties;
 
 import org.eclipse.swt.SWT;
@@ -27,12 +26,10 @@ import model.exceptions.InvalidNumbersFontDataException;
 import model.exceptions.InvalidPickedNumberColorException;
 import model.exceptions.InvalidUnpickedNumberColorException;
 import model.exceptions.InvalidWaitingSecondsBetweenNumbersException;
-import model.helpers.ArrayPropertiesHandler;
 
 public class SettingsManager {
 
     private static final String SETTINGS_FILE = "config.properties"; //$NON-NLS-1$
-    private static final String NUMBERS_FILE = "numbers.properties"; //$NON-NLS-1$
 
     private static final String SETTING_AMOUNT_OF_NUMBERS = "amountOfNumbers"; //$NON-NLS-1$
     private static final String SETTING_AMOUNT_OF_GRID_COLUMNS = "amountOfGridColumns"; //$NON-NLS-1$
@@ -49,15 +46,15 @@ public class SettingsManager {
     private static final String SETTING_SHOW_NUMBER_NAMES = "showNumberNames"; //$NON-NLS-1$
     private static final String SETTING_NUMBER_NAMES_FONT_DATA = "numberNamesFontData"; //$NON-NLS-1$
 
-    private static final String SETTING_NUMBER_NAMES = "numberNames"; //$NON-NLS-1$
+    private String basePath;
 
     private int amountOfNumbers = 90;
     private int amountOfGridColumns = 10;
     private int waitingSecondsBetweenNumbers = 0;
     private FontData numbersFontData;
     private int maximumHistoryLength = 5;
-    private int minimumHistoryFontSize = 20;
-    private int maximumHistoryFontSize = 35;
+    private int minimumHistoryFontSize = 15;
+    private int maximumHistoryFontSize = 30;
     private int historyNumbersGap = 80;
     private RGB currentNumberColor;
     private RGB pickedNumberColor;
@@ -66,10 +63,12 @@ public class SettingsManager {
     private boolean showNumberNames = true;
     private FontData numberNamesFontData;
 
-    private HashMap<Integer, String> numberNames;
+    public SettingsManager(String basePath) {
+        this.basePath = basePath;
+    }
 
     public void loadFromFile(Display display) {
-        File file = new File(SETTINGS_FILE);
+        File file = new File(basePath + "/" + SETTINGS_FILE); //$NON-NLS-1$
         try {
             file.createNewFile();
         } catch (IOException e) {
@@ -97,7 +96,7 @@ public class SettingsManager {
                     FontData systemFont = display.getSystemFont().getFontData()[0];
                     setNumbersFontDataFromValues(systemFont.getName(), systemFont.getHeight() * 4, SWT.BOLD);
                 } catch (Exception e2) {
-                    setNumbersFontDataFromValues("", 48, SWT.BOLD); //$NON-NLS-1$
+                    setNumbersFontDataFromValues("", 24, SWT.BOLD); //$NON-NLS-1$
                 }
             }
             try {
@@ -153,28 +152,10 @@ public class SettingsManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        file = new File(NUMBERS_FILE);
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            Properties properties = new Properties();
-            properties.load(fileInputStream);
-            try {
-                numberNames = new ArrayPropertiesHandler().getArrayPorperties(properties, SETTING_NUMBER_NAMES);
-            } catch (Exception e) {
-                numberNames = new HashMap<>();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public void saveToFile() {
-        try (FileOutputStream fileOutputStream = new FileOutputStream(SETTINGS_FILE)) {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(basePath + "/" + SETTINGS_FILE)) { //$NON-NLS-1$
             Properties properties = new Properties();
             properties.setProperty(SETTING_AMOUNT_OF_NUMBERS, String.valueOf(amountOfNumbers));
             properties.setProperty(SETTING_AMOUNT_OF_GRID_COLUMNS, String.valueOf(amountOfGridColumns));
@@ -349,10 +330,6 @@ public class SettingsManager {
             throw new InvalidHighlightColorException();
         }
         this.highlightColor = highlightColor;
-    }
-
-    public HashMap<Integer, String> getNumberNames() {
-        return numberNames;
     }
 
     public boolean getShowNumberNames() {

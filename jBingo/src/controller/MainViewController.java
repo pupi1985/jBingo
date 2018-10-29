@@ -1,7 +1,5 @@
 package controller;
 
-import java.util.HashMap;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
@@ -10,6 +8,7 @@ import model.Bingo;
 import model.NumberBagListener;
 import model.exceptions.EmptyBagException;
 import view.Messages;
+import view.NumberNames;
 import view.shells.MainView;
 
 public class MainViewController implements NumberBagListener {
@@ -18,12 +17,9 @@ public class MainViewController implements NumberBagListener {
     private MainView mainView;
     private Display display;
 
-    private HashMap<Integer, String> numberNames;
-
     public MainViewController(Bingo bingo, Display display) {
         this.bingo = bingo;
         this.display = display;
-        this.numberNames = bingo.getSettingsManager().getNumberNames();
 
         bingo.getNumberBag().addNumberBagListener(this);
 
@@ -33,7 +29,7 @@ public class MainViewController implements NumberBagListener {
 
     @Override
     public void numberPicked(int number) {
-        mainView.pickNumber(number, numberNames.get(number));
+        mainView.pickNumber(number, NumberNames.getString(number));
     }
 
     @Override
@@ -55,7 +51,7 @@ public class MainViewController implements NumberBagListener {
 
     public void resetButtonAction() {
         MessageBox messageBox = new MessageBox(mainView.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-        messageBox.setText(Messages.getString("MainView.ResetConfirmationTitle")); //$NON-NLS-1$
+        messageBox.setText(Messages.getString("Application.ResetConfirmationTitle")); //$NON-NLS-1$
         messageBox.setMessage(Messages.getString("MainView.ResetConfirmationText")); //$NON-NLS-1$
         int answer = messageBox.open();
         if (answer == SWT.YES) {

@@ -8,9 +8,9 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-public class Messages {
+public class NumberNames {
 
-    private static final String BUNDLE_NAME = "messages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = "numbers"; //$NON-NLS-1$
 
     private static ResourceBundle resourceBoundle;
 
@@ -25,15 +25,11 @@ public class Messages {
         }
     }
 
-    private static String getString(String key) {
+    public static String getString(Integer key, Object... arguments) {
         try {
-            return resourceBoundle.getString(key);
+            return MessageFormat.format(resourceBoundle.getString(String.valueOf(key)), arguments);
         } catch (MissingResourceException e) {
-            return '!' + key + '!';
+            return null;
         }
-    }
-
-    public static String getString(String key, Object... arguments) {
-        return MessageFormat.format(getString(key), arguments);
     }
 }

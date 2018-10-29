@@ -162,7 +162,7 @@ public class PreferencesController {
         if (success) { // Apply changes to the view and model
             if (bingo.getGameStarted()) {
                 MessageBox messageBox = new MessageBox(preferencesView.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-                messageBox.setText(Messages.getString("PreferencesView.ResetConfirmationTitle")); //$NON-NLS-1$
+                messageBox.setText(Messages.getString("Application.ResetConfirmationTitle")); //$NON-NLS-1$
                 messageBox.setMessage(Messages.getString("PreferencesView.ResetConfirmationText")); //$NON-NLS-1$
                 int answer = messageBox.open();
                 if (answer == SWT.YES) {

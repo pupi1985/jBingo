@@ -310,6 +310,7 @@ public class MainView {
         try {
             int previousNumber = historicalNumbers.get(historicalNumbers.size() - 2);
             Label previousNumberLabel = getMainNumberLabelFromNumber(previousNumber);
+            previousNumberLabel.setBackground(this.nonHighlightedBackgroundColor);
             previousNumberLabel.getParent().setBackground(this.nonHighlightedBackgroundColor);
             Color previousNumberFontColor = new Color(display, bingo.getSettingsManager().getPickedNumberColor());
             previousNumberLabel.setForeground(previousNumberFontColor);
@@ -394,12 +395,16 @@ public class MainView {
             }
 
             if (alpha < 0) {
+                label.setBackground(this.initialColor);
                 label.getParent().setBackground(this.initialColor);
 
                 return;
             }
 
-            label.getParent().setBackground(new Color(display, highlightColor, alpha));
+            Color newColor = new Color(display, highlightColor, alpha);
+            label.setBackground(newColor);
+            label.getParent().setBackground(newColor);
+
             alpha -= 5;
             display.timerExec(30, this);
         }

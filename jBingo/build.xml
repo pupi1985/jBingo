@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project name="jBingo" basedir="." default="main">
+
+	<property name="projectName" value="jBingo" />
+	<property name="src.dir" location="src" />
+	<property name="build.dir" location="bin" />
+	<property name="dist.dir" location="dist" />
+	<property name="dist.lib.dir" location="dist/lib" />
+
+	<property name="lib.dir" value="lib" />
+	<property name="main-class" value="main.Main" />
+
+	<target name="init">
+		<mkdir dir="${build.dir}" />
+	</target>
+
+	<path id="classpath.path">
+		<fileset id="classpath.fileset" dir="${basedir}/${lib.dir}/">
+			<include name="miglayout-4.0-swt.jar" />
+			<include name="org.eclipse.jface_3.13.2.v20171022-1656.jar" />
+			<include name="swt-4.9-cocoa-macosx-x86_64.jar" />
+			<include name="swt-4.9-gtk-linux-ppc64le.jar" />
+			<include name="swt-4.9-gtk-linux-x86_64.jar" />
+			<include name="swt-4.9-gtk-linux-x86.jar" />
+			<include name="swt-4.9-win32-x86_64.jar" />
+			<include name="swt-4.9-win32-x86.jar" />
+		</fileset>
+	</path>
+
+	<target name="compile" depends="init">
+		<javac includeantruntime="false" srcdir="${src.dir}" destdir="${build.dir}" classpathref="classpath.path" />
+	</target>
+
+	<target name="copy-dependencies">
+		<copy todir="${dist.lib.dir}">
+			<fileset dir="${basedir}/${lib.dir}" />
+		</copy>
+
+		<copy todir="${dist.dir}/resources">
+			<fileset dir="${basedir}/resources" />
+		</copy>
+
+		<touch file="${dist.dir}/config.properties" />
+
+		<copy file="license.txt" todir="${dist.dir}" />
+	</target>
+
+	<target name="jar" depends="compile, copy-dependencies">
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${dist.lib.dir}" />
+
+		<path id="classpath.files">
+			<pathelement location="${lib.dir}/miglayout-4.0-swt.jar" />
+			<pathelement location="${lib.dir}/org.eclipse.jface_3.13.2.v20171022-1656.jar" />
+		</path>
+
+		<manifestclasspath property="classpath" jarfile="${projectName}.jar">
+			<classpath refid="classpath.files" />
+		</manifestclasspath>
+
+		<jar jarfile="${dist.dir}/${projectName}.jar" basedir="${build.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="${main-class}" />
+				<attribute name="Class-Path" value="${classpath}" />
+			</manifest>
+		</jar>
+
+		<chmod file="${dist.dir}/${projectName}.jar" perm="a+x" />
+	</target>
+
+	<target name="clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+
+	<target name="main" depends="clean, compile, jar" />
+
+</project>
