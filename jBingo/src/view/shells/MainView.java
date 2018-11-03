@@ -206,6 +206,13 @@ public class MainView {
         historyMenuItem = new MenuItem(optionsMenu, SWT.PUSH);
         historyMenuItem.setText(Messages.getString("MainView.MenuHistory")); //$NON-NLS-1$
 
+        new MenuItem(optionsMenu, SWT.SEPARATOR);
+
+        MenuItem aboutMenuItem = new MenuItem(optionsMenu, SWT.PUSH);
+        aboutMenuItem.setText(Messages.getString("MainView.MenuAbout")); //$NON-NLS-1$
+
+        new MenuItem(optionsMenu, SWT.SEPARATOR);
+
         MenuItem exitMenuItem = new MenuItem(optionsMenu, SWT.PUSH);
         exitMenuItem.setText(Messages.getString("MainView.MenuExit")); //$NON-NLS-1$
 
@@ -231,6 +238,12 @@ public class MainView {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 mainViewController.historyButtonAction();
+            }
+        });
+        aboutMenuItem.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                mainViewController.aboutButtonAction();
             }
         });
         exitMenuItem.addSelectionListener(new SelectionAdapter() {

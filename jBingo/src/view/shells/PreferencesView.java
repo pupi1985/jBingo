@@ -265,15 +265,6 @@ public class PreferencesView {
         spacer.setLayout(new MigLayout("insets 0")); //$NON-NLS-1$
         spacer.setLayoutData("growx, pushx"); //$NON-NLS-1$
 
-        Button applyButton = new Button(bottomPanel, SWT.PUSH);
-        applyButton.setLayoutData("sizegroup actionButtons, wmin 100"); //$NON-NLS-1$
-        applyButton.setText(Messages.getString("Application.ButtonApply")); //$NON-NLS-1$
-        applyButton.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                preferencesController.applyButtonAction();
-            }
-        });
         Button okButton = new Button(bottomPanel, SWT.PUSH);
         okButton.setLayoutData("sizegroup actionButtons"); //$NON-NLS-1$
         okButton.setText(Messages.getString("Application.ButtonOk")); //$NON-NLS-1$
@@ -290,6 +281,15 @@ public class PreferencesView {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 preferencesController.cancelButtonAction();
+            }
+        });
+        Button applyButton = new Button(bottomPanel, SWT.PUSH);
+        applyButton.setLayoutData("sizegroup actionButtons, wmin 100"); //$NON-NLS-1$
+        applyButton.setText(Messages.getString("Application.ButtonApply")); //$NON-NLS-1$
+        applyButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                preferencesController.applyButtonAction();
             }
         });
 

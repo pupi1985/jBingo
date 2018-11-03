@@ -67,6 +67,10 @@ public class MainViewController implements NumberBagListener {
         new HistoryController(bingo, display, mainView);
     }
 
+    public void aboutButtonAction() {
+        new AboutController(display, mainView);
+    }
+
     public void exitButtonAction() {
         mainView.getDisplay().dispose();
     }
