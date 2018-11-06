@@ -42,6 +42,7 @@ public class SettingsManager {
     private static final String SETTING_CURRENT_NUMBER_COLOR = "currentNumberColor"; //$NON-NLS-1$
     private static final String SETTING_PICKED_NUMBER_COLOR = "pickedNumberColor"; //$NON-NLS-1$
     private static final String SETTING_UNPICKED_NUMBER_COLOR = "unpickedNumberColor"; //$NON-NLS-1$
+    private static final String SETTING_SHOW_HIGHLIGHT = "showHighlight"; //$NON-NLS-1$
     private static final String SETTING_HIGHLIGHT_COLOR = "highlightColor"; //$NON-NLS-1$
     private static final String SETTING_SHOW_NUMBER_NAMES = "showNumberNames"; //$NON-NLS-1$
     private static final String SETTING_NUMBER_NAMES_FONT_DATA = "numberNamesFontData"; //$NON-NLS-1$
@@ -59,6 +60,7 @@ public class SettingsManager {
     private RGB currentNumberColor;
     private RGB pickedNumberColor;
     private RGB unpickedNumberColor;
+    private boolean showHighlight = true;
     private RGB highlightColor;
     private boolean showNumberNames = true;
     private FontData numberNamesFontData;
@@ -94,9 +96,9 @@ public class SettingsManager {
             } catch (Exception e1) {
                 try { // Make every possible effort to create a valid font
                     FontData systemFont = display.getSystemFont().getFontData()[0];
-                    setNumbersFontDataFromValues(systemFont.getName(), systemFont.getHeight() * 4, SWT.BOLD);
+                    setNumbersFontDataFromValues(systemFont.getName(), systemFont.getHeight() * 3, SWT.BOLD);
                 } catch (Exception e2) {
-                    setNumbersFontDataFromValues("", 24, SWT.BOLD); //$NON-NLS-1$
+                    setNumbersFontDataFromValues("", 20, SWT.BOLD); //$NON-NLS-1$
                 }
             }
             try {
@@ -129,6 +131,10 @@ public class SettingsManager {
                 unpickedNumberColor = RgbSerializer.stringToRGB(properties.getProperty(SETTING_UNPICKED_NUMBER_COLOR));
             } catch (Exception e) {
                 unpickedNumberColor = display.getSystemColor(SWT.COLOR_WIDGET_NORMAL_SHADOW).getRGB();
+            }
+            try {
+                showHighlight = Boolean.valueOf(properties.getProperty(SETTING_SHOW_HIGHLIGHT));
+            } catch (Exception e) {
             }
             try {
                 highlightColor = RgbSerializer.stringToRGB(properties.getProperty(SETTING_HIGHLIGHT_COLOR));
@@ -168,6 +174,7 @@ public class SettingsManager {
             properties.setProperty(SETTING_CURRENT_NUMBER_COLOR, RgbSerializer.rgbToString(currentNumberColor));
             properties.setProperty(SETTING_PICKED_NUMBER_COLOR, RgbSerializer.rgbToString(pickedNumberColor));
             properties.setProperty(SETTING_UNPICKED_NUMBER_COLOR, RgbSerializer.rgbToString(unpickedNumberColor));
+            properties.setProperty(SETTING_SHOW_HIGHLIGHT, String.valueOf(showHighlight));
             properties.setProperty(SETTING_HIGHLIGHT_COLOR, RgbSerializer.rgbToString(highlightColor));
             properties.setProperty(SETTING_SHOW_NUMBER_NAMES, String.valueOf(showNumberNames));
             properties.setProperty(SETTING_NUMBER_NAMES_FONT_DATA, String.valueOf(numberNamesFontData));
@@ -319,6 +326,14 @@ public class SettingsManager {
             throw new InvalidUnpickedNumberColorException();
         }
         this.unpickedNumberColor = unpickedNumberColor;
+    }
+
+    public boolean getShowHighlight() {
+        return showHighlight;
+    }
+
+    public void setShowHighlight(boolean showHighlight) {
+        this.showHighlight = showHighlight;
     }
 
     public RGB getHighlightColor() {

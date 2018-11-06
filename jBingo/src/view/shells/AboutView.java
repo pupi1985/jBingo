@@ -94,7 +94,7 @@ public class AboutView {
 
         Label dateValueLabel = new Label(mainPanel, SWT.NONE);
         try {
-            Date date = new SimpleDateFormat("yyyy-MM-dd").parse("2018-11-03");
+            Date date = new SimpleDateFormat("yyyy-MM-dd").parse("2018-11-06");
             String dateString = DateFormat.getDateInstance(DateFormat.MEDIUM).format(date);
             dateValueLabel.setText(dateString); //$NON-NLS-1$
         } catch (Exception e) {

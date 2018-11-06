@@ -94,6 +94,7 @@ public class PreferencesController {
         RGB originalCurrentNumberColor = bingo.getSettingsManager().getCurrentNumberColor();
         RGB originalPickedNumberColor = bingo.getSettingsManager().getPickedNumberColor();
         RGB originalUnpickedNumberColor = bingo.getSettingsManager().getUnpickedNumberColor();
+        boolean originalShowHighlight = bingo.getSettingsManager().getShowHighlight();
         RGB originalHighlightColor = bingo.getSettingsManager().getHighlightColor();
         boolean originalShowNumberNames = bingo.getSettingsManager().getShowNumberNames();
         FontData originalNumberNamesFontData = bingo.getSettingsManager().getNumberNamesFontData();
@@ -114,6 +115,7 @@ public class PreferencesController {
             bingo.getSettingsManager().setCurrentNumberColor(selectedCurrentNumberColor);
             bingo.getSettingsManager().setPickedNumberColor(selectedPickedNumberColor);
             bingo.getSettingsManager().setUnpickedNumberColor(selectedUnpickedNumberColor);
+            bingo.getSettingsManager().setShowHighlight(preferencesView.getShowHighlightCheckbox().getSelection());
             bingo.getSettingsManager().setHighlightColor(selectedHighlightColor);
             bingo.getSettingsManager().setShowNumberNames(preferencesView.getShowNumberNamesCheckbox().getSelection());
             bingo.getSettingsManager().setNumberNamesFontDataFromValues(
@@ -152,6 +154,7 @@ public class PreferencesController {
                 bingo.getSettingsManager().setCurrentNumberColor(originalCurrentNumberColor);
                 bingo.getSettingsManager().setPickedNumberColor(originalPickedNumberColor);
                 bingo.getSettingsManager().setUnpickedNumberColor(originalUnpickedNumberColor);
+                bingo.getSettingsManager().setShowHighlight(originalShowHighlight);
                 bingo.getSettingsManager().setHighlightColor(originalHighlightColor);
                 bingo.getSettingsManager().setShowNumberNames(originalShowNumberNames);
                 bingo.getSettingsManager().setNumberNamesFontDataFromValues(originalNumberNamesFontData.getName(), originalNumberNamesFontData.getHeight(), originalNumberNamesFontData.getStyle());

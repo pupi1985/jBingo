@@ -35,9 +35,12 @@ public class PreferencesView {
     private Label currentNumberColorColoredLabel;
     private Label pickedNumberColorColoredLabel;
     private Label unpickedNumberColorColoredLabel;
+    private Label highlightColorLabel;
     private Label highlightColorColoredLabel;
     private Label numberNamesFontLabel;
     private Label numberNamesFontValuesLabel;
+    private Button showHighlightCheckbox;
+    private Button changeHighlightColorButton;
     private Button showNumberNamesCheckbox;
     private Button changeNumberNamesFontButton;
 
@@ -203,11 +206,25 @@ public class PreferencesView {
         unpickedNumberColorColoredLabel.setLayoutData("wmin 30pt"); //$NON-NLS-1$
         unpickedNumberColorColoredLabel.setBackground(new Color(display, bingo.getSettingsManager().getUnpickedNumberColor()));
 
-        Label highlightColorLabel = new Label(mainPanel, SWT.NONE);
-        highlightColorLabel.setLayoutData("gapleft 15pt"); //$NON-NLS-1$
-        highlightColorLabel.setText(Messages.getString("PreferencesView.Highlight")); //$NON-NLS-1$
+        showHighlightCheckbox = new Button(mainPanel, SWT.CHECK);
+        showHighlightCheckbox.setLayoutData("wrap"); //$NON-NLS-1$
+        showHighlightCheckbox.setText(Messages.getString("PreferencesView.ShowHighlight")); //$NON-NLS-1$
+        showHighlightCheckbox.setSelection(bingo.getSettingsManager().getShowHighlight());
+        showHighlightCheckbox.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                boolean isSelected = ((Button) event.getSource()).getSelection();
+                highlightColorLabel.setEnabled(isSelected);
+                changeHighlightColorButton.setEnabled(isSelected);
+                highlightColorColoredLabel.setEnabled(isSelected);
+            }
+        });
 
-        Button changeHighlightColorButton = new Button(mainPanel, SWT.PUSH);
+        highlightColorLabel = new Label(mainPanel, SWT.NONE);
+        highlightColorLabel.setLayoutData("gapleft 15pt"); //$NON-NLS-1$
+        highlightColorLabel.setText(Messages.getString("PreferencesView.HighlightColor")); //$NON-NLS-1$
+
+        changeHighlightColorButton = new Button(mainPanel, SWT.PUSH);
         changeHighlightColorButton.setLayoutData("split 2"); //$NON-NLS-1$
         changeHighlightColorButton.setText(Messages.getString("PreferencesView.ChangeColor")); //$NON-NLS-1$
         changeHighlightColorButton.addSelectionListener(new SelectionAdapter() {
@@ -223,7 +240,7 @@ public class PreferencesView {
 
         showNumberNamesCheckbox = new Button(mainPanel, SWT.CHECK);
         showNumberNamesCheckbox.setLayoutData("wrap"); //$NON-NLS-1$
-        showNumberNamesCheckbox.setText(Messages.getString("PreferencesView.NumberNames")); //$NON-NLS-1$
+        showNumberNamesCheckbox.setText(Messages.getString("PreferencesView.ShowNumberNames")); //$NON-NLS-1$
         showNumberNamesCheckbox.setSelection(bingo.getSettingsManager().getShowNumberNames());
         showNumberNamesCheckbox.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -293,6 +310,7 @@ public class PreferencesView {
             }
         });
 
+        showHighlightCheckbox.notifyListeners(SWT.Selection, new Event());
         showNumberNamesCheckbox.notifyListeners(SWT.Selection, new Event());
 
         shell.setDefaultButton(okButton);
@@ -340,6 +358,10 @@ public class PreferencesView {
 
     public Label getUnpickedNumberColorColoredLabel() {
         return unpickedNumberColorColoredLabel;
+    }
+
+    public Button getShowHighlightCheckbox() {
+        return showHighlightCheckbox;
     }
 
     public Label getHighlightColorColoredLabel() {

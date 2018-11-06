@@ -317,16 +317,21 @@ public class MainView {
         Color currentNumberFontColor = new Color(display, bingo.getSettingsManager().getCurrentNumberColor());
         label.setForeground(currentNumberFontColor);
 
-        Color highlightColor = new Color(display, bingo.getSettingsManager().getHighlightColor());
-        new LabelHighlighter(this.display, label, highlightColor).run();
+        boolean showHighlight = bingo.getSettingsManager().getShowHighlight();
+        if (showHighlight) {
+            Color highlightColor = new Color(display, bingo.getSettingsManager().getHighlightColor());
+            new LabelHighlighter(this.display, label, highlightColor).run();
+        }
 
         try {
             int previousNumber = historicalNumbers.get(historicalNumbers.size() - 2);
             Label previousNumberLabel = getMainNumberLabelFromNumber(previousNumber);
-            previousNumberLabel.setBackground(this.nonHighlightedBackgroundColor);
-            previousNumberLabel.getParent().setBackground(this.nonHighlightedBackgroundColor);
             Color previousNumberFontColor = new Color(display, bingo.getSettingsManager().getPickedNumberColor());
             previousNumberLabel.setForeground(previousNumberFontColor);
+            if (showHighlight) {
+                previousNumberLabel.setBackground(this.nonHighlightedBackgroundColor);
+                previousNumberLabel.getParent().setBackground(this.nonHighlightedBackgroundColor);
+            }
         } catch (IndexOutOfBoundsException e) {
         } catch (Exception e) {
             e.printStackTrace();
