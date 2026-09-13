@@ -22,7 +22,7 @@ jBingo is a simple application that replaces a bingo sphere. It represents a bag
 
 #### Requirements
 
- *  Java 8+
+ *  Java 8 (can be found in `jres` directory)
 
 #### Screenshots
 
